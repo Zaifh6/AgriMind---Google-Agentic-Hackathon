@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgriMind — Autonomous AI Farming Agent</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Mono:wght@400;500&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet" />
+
+  <!-- App styles -->
+  <link rel="stylesheet" href="src/css/styles.css" />
+
+  <!-- Chart.js (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Tailwind (utility classes used in a few inline layouts) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="app">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SIDEBAR
+  ════════════════════════════════════════════════════════════ -->
+  <aside class="sidebar">
+
+    <!-- Brand -->
+    <div class="sidebar-brand">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="brand-logo">🌿</div>
+        <div>
+          <div class="brand-name">AgriMind</div>
+          <div class="brand-tag" data-i18n="tagline">AI Farming Agent</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Language toggle -->
+    <div class="lang-section">
+      <div class="lang-label">Language / زبان</div>
+      <div class="lang-btns">
+        <button id="btn-en" class="lang-btn active" onclick="setLanguage('en')">🇬🇧 English</button>
+        <button id="btn-ur" class="lang-btn" onclick="setLanguage('ur')" style="font-family:'Noto Nastaliq Urdu',serif">🇵🇰 اردو</button>
+      </div>
+    </div>
+
+    <!-- Active farm -->
+    <div class="farm-section">
+      <div class="nav-label" data-i18n="active-farm" style="margin-bottom:6px">Active Farm</div>
+      <div class="farm-card">
+        <div class="farm-name">Al-Barkat Farm</div>
+        <div class="farm-meta">45 <span data-i18n="acres">acres</span> · Sahiwal, Punjab PK</div>
+        <div class="farm-crop">🌱 <span data-i18n="crop-tomatoes">Wheat</span> · <span data-i18n="day-label">Day</span> 65/120</div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-section">
+      <div class="nav-label" data-i18n="navigation">Navigation</div>
+      <div class="sidebar-item active" onclick="switchView('dashboard', this)">
+        <span class="nav-icon">▦</span><span data-i18n="nav-dashboard">Dashboard</span>
+      </div>
+      <div class="sidebar-item" onclick="switchView('ai-agent', this)">
+        <span class="nav-icon">◎</span><span data-i18n="nav-ai-agent">AI Agent</span>
+      </div>
+      <div class="sidebar-item" onclick="switchView('alerts', this)">
+        <span class="nav-icon">◉</span><span data-i18n="nav-alerts">Alerts</span>
+        <span class="nav-badge">3</span>
+      </div>
+      <div class="sidebar-item" onclick="switchView('weather', this)">
+        <span class="nav-icon">◌</span><span data-i18n="nav-weather">Weather</span>
+      </div>
+      <div class="sidebar-item" onclick="switchView('fields', this)">
+        <span class="nav-icon">⬡</span><span data-i18n="nav-fields">Fields</span>
+      </div>
+    </div>
+
+    <!-- User footer -->
+    <div class="sidebar-user">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="user-avatar">RS</div>
+        <div>
+          <div class="user-name">Rajesh Sharma</div>
+          <div class="user-status" data-i18n="agent-active">● Agent Active</div>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MAIN CONTENT
+  ════════════════════════════════════════════════════════════ -->
+  <main class="main">
+
+    <!-- ─────────────────────────────────────────────────────────
+         VIEW: DASHBOARD
+    ──────────────────────────────────────────────────────────── -->
+    <div id="view-dashboard" class="view active">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <h1 class="page-title" data-i18n="dashboard-title">Farm Dashboard</h1>
+          <p class="page-sub" data-i18n="dashboard-date">Monday, May 4, 2026 · 09:42 AM PKT</p>
+        </div>
+        <div class="header-badges">
+          <span class="pill pill-green"><span class="pulse-dot"></span><span data-i18n="agent-running">Agent Running</span></span>
+          <span class="pill pill-gray" data-i18n="automode">Auto-mode ON</span>
+        </div>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="stat-grid">
+        <div class="stat-card blue">
+          <div class="stat-label" data-i18n="stat-water">Water Saved</div>
+          <div class="stat-value blue">38%</div>
+          <div class="stat-trend up" data-i18n="stat-water-sub">↑ vs last season avg</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label" data-i18n="stat-yield">Yield Forecast</div>
+          <div class="stat-value green">18.4t</div>
+          <div class="stat-trend up" data-i18n="stat-yield-sub">↑ 12% above baseline</div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-label" data-i18n="stat-disease">Disease Risk</div>
+          <div class="stat-value yellow" data-i18n="medium">Medium</div>
+          <div class="stat-trend warn" data-i18n="stat-disease-sub">Yellow rust watch active</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label" data-i18n="stat-alerts">Active Alerts</div>
+          <div class="stat-value red">4</div>
+          <div class="stat-trend danger" data-i18n="stat-alerts-sub">1 critical · 2 high</div>
+        </div>
+      </div>
+
+      <!-- Row 2: Weather + Irrigation -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px">
+
+        <!-- Weather card -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <span class="card-title" data-i18n="weather-title">Weather Forecast</span>
+            <span style="font-size:10px;color:var(--text-tertiary)" data-i18n="weather-source">Open-Meteo · ECMWF blend</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;margin-bottom:12px">
+            <div style="font-size:38px;line-height:1">☀️</div>
+            <div>
+              <div style="font-size:30px;font-weight:700;letter-spacing:-0.04em;color:var(--text-primary)">36°C</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:2px" data-i18n="weather-now-desc">Sunny · Humidity 58% · Wind 14 km/h SW</div>
+              <div style="font-size:11px;color:var(--green-primary);margin-top:3px" data-i18n="weather-now-note">No precipitation next 12h · Loo winds possible Day 4</div>
+            </div>
+            <div style="margin-left:auto;text-align:right">
+              <div style="font-size:10px;color:var(--text-tertiary)" data-i18n="feels-like">Feels like</div>
+              <div style="font-size:20px;font-weight:700;color:var(--accent-orange);letter-spacing:-0.03em">42°C</div>
+              <div style="font-size:10px;color:var(--text-tertiary);margin-top:2px" data-i18n="uv-index">UV Index: 10 (Very High)</div>
+            </div>
+          </div>
+          <div class="weather-strip">
+            <div class="weather-day today">
+              <div style="font-size:10px;color:var(--green-primary);font-weight:600" data-i18n="today">Today</div>
+              <div style="font-size:18px;margin:5px 0">☀️</div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary)">32°</div>
+              <div style="font-size:10px;color:var(--accent-blue);margin-top:2px">0%</div>
+            </div>
+            <div class="weather-day">
+              <div style="font-size:10px;color:var(--text-tertiary)" data-i18n="thu">Thu</div>
+              <div style="font-size:18px;margin:5px 0">⛅</div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary)">30°</div>
+              <div style="font-size:10px;color:var(--accent-blue);margin-top:2px">10%</div>
+            </div>
+            <div class="weather-day">
+              <div style="font-size:10px;color:var(--text-tertiary)" data-i18n="fri">Fri</div>
+              <div style="font-size:18px;margin:5px 0">🌥</div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary)">27°</div>
+              <div style="font-size:10px;color:var(--accent-yellow);margin-top:2px">40%</div>
+            </div>
+            <div class="weather-day" style="border-color:rgba(240,107,107,0.25);background:rgba(240,107,107,0.05)">
+              <div style="font-size:10px;color:var(--accent-yellow);font-weight:600" data-i18n="sat-warn">Sat ⚠</div>
+              <div style="font-size:18px;margin:5px 0">🌧</div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary)">24°</div>
+              <div style="font-size:10px;color:var(--accent-red);font-weight:700;margin-top:2px">80%</div>
+            </div>
+            <div class="weather-day">
+              <div style="font-size:10px;color:var(--text-tertiary)" data-i18n="sun">Sun</div>
+              <div style="font-size:18px;margin:5px 0">🌦</div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary)">22°</div>
+              <div style="font-size:10px;color:var(--accent-orange);margin-top:2px">60%</div>
+            </div>
+            <div class="weather-day">
+              <div style="font-size:10px;color:var(--text-tertiary)" data-i18n="mon">Mon</div>
+              <div style="font-size:18px;margin:5px 0">⛅</div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary)">26°</div>
+              <div style="font-size:10px;color:var(--accent-blue);margin-top:2px">20%</div>
+            </div>
+            <div class="weather-day">
+              <div style="font-size:10px;color:var(--text-tertiary)" data-i18n="tue">Tue</div>
+              <div style="font-size:18px;margin:5px 0">☀️</div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary)">29°</div>
+              <div style="font-size:10px;color:var(--green-primary);margin-top:2px">5%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Irrigation Status -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <span class="card-title" data-i18n="irrigation-title">Irrigation Status</span>
+            <span class="pill pill-green" style="font-size:10px;padding:2px 8px" data-i18n="active">ACTIVE</span>
+          </div>
+          <div class="sensor-grid" style="margin-bottom:12px">
+            <div class="sensor-tile">
+              <div class="sensor-label">Zone 1</div>
+              <div class="sensor-val" style="color:var(--accent-blue)">78%</div>
+              <div class="sensor-status" style="color:var(--green-primary)" data-i18n="good">Good</div>
+            </div>
+            <div class="sensor-tile">
+              <div class="sensor-label">Zone 2</div>
+              <div class="sensor-val" style="color:var(--accent-yellow)">61%</div>
+              <div class="sensor-status" style="color:var(--accent-yellow)" data-i18n="low-warn">Low ⚠</div>
+            </div>
+            <div class="sensor-tile">
+              <div class="sensor-label">Zone 3</div>
+              <div class="sensor-val" style="color:var(--green-primary)">82%</div>
+              <div class="sensor-status" style="color:var(--green-primary)" data-i18n="optimal">Optimal</div>
+            </div>
+            <div class="sensor-tile" style="border-color:rgba(240,107,107,0.2);background:rgba(240,107,107,0.04)">
+              <div class="sensor-label">Zone 4</div>
+              <div class="sensor-val" style="color:var(--accent-red)">48%</div>
+              <div class="sensor-status" style="color:var(--accent-red)" data-i18n="critical-warn">Critical !</div>
+            </div>
+          </div>
+          <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;margin-bottom:10px">
+            <div class="info-key" data-i18n="next-scheduled">Next Scheduled</div>
+            <div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-top:3px" data-i18n="next-sched-val">Zone 2 & 4 — Today 3:30 PM</div>
+            <div style="font-size:10px;color:var(--green-primary);margin-top:2px" data-i18n="next-sched-sub">340L estimated · Drip system</div>
+          </div>
+          <div>
+            <div class="info-row"><span class="info-key" data-i18n="etc-today">ETc today</span><span class="info-val mono" style="font-size:11px">5.2 mm</span></div>
+            <div class="info-row"><span class="info-key" data-i18n="last-irr">Last irrigation</span><span class="info-val" style="font-size:11px" data-i18n="last-irr-val">Yesterday 4 PM</span></div>
+            <div class="info-row"><span class="info-key" data-i18n="last-rain">Last rainfall</span><span class="info-val" style="font-size:11px" data-i18n="last-rain-val">3 days ago (8mm)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Disease Risk + AI Action Plan -->
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-bottom:12px">
+
+        <!-- Disease & Pest Risk -->
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px" data-i18n="disease-title">Disease & Pest Risk</div>
+          <div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:12px;color:var(--text-secondary)" data-i18n="late-blight">Yellow Rust</span>
+              <span style="font-size:11px;font-weight:600;color:var(--accent-yellow)" class="mono" data-i18n="blight-pct">45%</span>
+            </div>
+            <div class="risk-bar-track"><div class="risk-bar-fill" style="width:45%;background:var(--accent-yellow)"></div></div>
+          </div>
+          <div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:12px;color:var(--text-secondary)" data-i18n="aphid">Aphid Infestation</span>
+              <span style="font-size:11px;font-weight:600;color:var(--green-primary)" class="mono" data-i18n="aphid-pct">18%</span>
+            </div>
+            <div class="risk-bar-track"><div class="risk-bar-fill" style="width:18%;background:var(--green-primary)"></div></div>
+          </div>
+          <div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:12px;color:var(--text-secondary)" data-i18n="fusarium">Karnal Bunt</span>
+              <span style="font-size:11px;font-weight:600;color:var(--green-primary)" class="mono" data-i18n="fusarium-pct">12%</span>
+            </div>
+            <div class="risk-bar-track"><div class="risk-bar-fill" style="width:12%;background:var(--green-primary)"></div></div>
+          </div>
+          <div style="margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:12px;color:var(--text-secondary)" data-i18n="whitefly">Armyworm</span>
+              <span style="font-size:11px;font-weight:600;color:var(--accent-orange)" class="mono" data-i18n="whitefly-pct">38%</span>
+            </div>
+            <div class="risk-bar-track"><div class="risk-bar-fill" style="width:38%;background:var(--accent-orange)"></div></div>
+          </div>
+          <div style="background:rgba(245,197,66,0.06);border:1px solid rgba(245,197,66,0.18);border-radius:var(--radius-sm);padding:10px">
+            <div style="font-size:11px;font-weight:700;color:var(--accent-yellow)" data-i18n="blight-warn-title">⚠ Yellow Rust Risk Window</div>
+            <div style="font-size:11px;color:#c9b060;margin-top:4px;line-height:1.6" data-i18n="blight-warn-body">Risk rises Sat–Sun due to cooler nights and morning dew. Preventive propiconazole spray recommended by Fri evening.</div>
+          </div>
+        </div>
+
+        <!-- AI Action Plan -->
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <div style="width:28px;height:28px;background:var(--green-muted);border:1px solid rgba(45,210,114,0.2);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px">🤖</div>
+            <span class="card-title" data-i18n="plan-title">Today's AI Action Plan</span>
+            <span class="pill pill-green" style="margin-left:auto;font-size:10px;padding:2px 8px" data-i18n="plan-generated">Generated 6:00 AM</span>
+          </div>
+          <div class="action-item">
+            <div class="action-num">1</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600;color:var(--text-primary)" data-i18n="plan-1-title">Irrigate Zone 2 & 4 — 3:30 PM today</div>
+              <div style="font-size:11px;color:var(--text-tertiary);margin-top:3px" data-i18n="plan-1-body">Zone 2: 280L (18 min) · Zone 4: 340L (22 min). Drip valves will auto-open. Soil moisture critical in Zone 4.</div>
+            </div>
+            <span class="badge-pill badge-auto" data-i18n="badge-auto">AUTO</span>
+          </div>
+          <div class="action-item">
+            <div class="action-num">2</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600;color:var(--text-primary)" data-i18n="plan-2-title">Apply propiconazole spray by Friday 5 PM</div>
+              <div style="font-size:11px;color:var(--text-tertiary);margin-top:3px" data-i18n="plan-2-body">Preventive yellow rust treatment before Loo winds arrive Saturday. Propiconazole 25EC 1ml/L. Cover all leaf surfaces.</div>
+            </div>
+            <span class="badge-pill badge-approval" data-i18n="badge-approval">APPROVAL</span>
+          </div>
+          <div class="action-item">
+            <div class="action-num">3</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600;color:var(--text-primary)" data-i18n="plan-3-title">HOLD urea fertilizer application</div>
+              <div style="font-size:11px;color:var(--text-tertiary);margin-top:3px" data-i18n="plan-3-body">Loo winds forecast Sat–Sun will raise soil temperature rapidly. Reschedule urea top-dress for Monday when conditions cool.</div>
+            </div>
+            <span class="badge-pill badge-advisory" data-i18n="badge-advisory">ADVISORY</span>
+          </div>
+          <div class="action-item" style="margin-bottom:0">
+            <div class="action-num">4</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600;color:var(--text-primary)" data-i18n="plan-4-title">Inspect Zone 3 drip emitters</div>
+              <div style="font-size:11px;color:var(--text-tertiary);margin-top:3px" data-i18n="plan-4-body">Pressure anomaly detected. Possible blockage at rows 12–15. Visual check before irrigation cycle.</div>
+            </div>
+            <span class="badge-pill badge-manual" data-i18n="badge-manual">MANUAL</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Soil Moisture Chart -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <span class="card-title" data-i18n="moisture-chart-title">Soil Moisture Trend — 7 Days</span>
+          <div style="display:flex;gap:14px;font-size:11px;color:var(--text-tertiary)">
+            <span style="display:flex;align-items:center;gap:5px"><span style="width:20px;height:2px;background:var(--accent-blue);display:inline-block;border-radius:1px"></span>Zone 1</span>
+            <span style="display:flex;align-items:center;gap:5px"><span style="width:20px;height:2px;background:var(--accent-yellow);display:inline-block;border-radius:1px"></span>Zone 2</span>
+            <span style="display:flex;align-items:center;gap:5px"><span style="width:20px;height:2px;background:var(--green-primary);display:inline-block;border-radius:1px"></span>Zone 3</span>
+            <span style="display:flex;align-items:center;gap:5px"><span style="width:20px;height:2px;background:var(--accent-red);display:inline-block;border-radius:1px"></span>Zone 4</span>
+          </div>
+        </div>
+        <canvas id="soilMoistureChart" height="70"></canvas>
+      </div>
+    </div><!-- /view-dashboard -->
+
+    <!-- ─────────────────────────────────────────────────────────
+         VIEW: AI AGENT
+    ──────────────────────────────────────────────────────────── -->
+    <div id="view-ai-agent" class="view">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <h1 class="page-title" data-i18n="ai-title">AI Agent — Farm Analyzer</h1>
+          <p class="page-sub" data-i18n="ai-subtitle">Send real-time farm data to AgriMind's AI brain and get autonomous recommendations</p>
+        </div>
+        <div style="font-size:11px;color:var(--text-tertiary);background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 12px">
+          <span data-i18n="powered-by">Powered by</span> <span style="color:var(--green-primary);font-weight:600">Google Gemini 2.5 Pro</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:2fr 3fr;gap:16px">
+
+        <!-- Left: Input form -->
+        <div style="display:flex;flex-direction:column;gap:10px">
+
+          <!-- Crop & Field -->
+          <div class="card">
+            <div class="card-title" style="margin-bottom:12px" data-i18n="crop-section">🌾 Crop & Field Details</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div>
+                <label class="form-label" data-i18n="crop-type-label">Crop Type</label>
+                <select id="cropType" class="form-input dropdown-select">
+                  <option>Wheat</option><option>Tomatoes</option><option>Rice</option>
+                  <option>Cotton</option><option>Sugarcane</option><option>Corn / Maize</option>
+                  <option>Soybeans</option><option>Potatoes</option><option>Onions</option><option>Chili Peppers</option>
+                </select>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div>
+                  <label class="form-label" data-i18n="growth-stage-label">Growth Stage</label>
+                  <select id="growthStage" class="form-input dropdown-select">
+                    <option>Seedling</option><option selected>Vegetative</option>
+                    <option>Flowering</option><option>Fruiting</option><option>Maturity</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label" data-i18n="crop-day-label">Crop Day</label>
+                  <input id="cropDay" type="number" class="form-input" value="65" />
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div>
+                  <label class="form-label" data-i18n="field-size-label">Field Size (acres)</label>
+                  <input id="fieldSize" type="number" class="form-input" value="45" />
+                </div>
+                <div>
+                  <label class="form-label" data-i18n="irr-method-label">Irrigation Method</label>
+                  <select id="irrigationMethod" class="form-input dropdown-select">
+                    <option selected>Drip</option><option>Sprinkler</option><option>Flood</option><option>Furrow</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sensor readings -->
+          <div class="card">
+            <div class="card-title" style="margin-bottom:12px" data-i18n="sensor-section">🌡 Sensor Readings</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div>
+                <label class="form-label"><span data-i18n="soil-moisture-label">Soil Moisture:</span> <span id="soilMoistureVal" style="color:var(--green-primary);font-weight:700" class="mono">72%</span></label>
+                <input type="range" id="soilMoisture" class="range-input" min="0" max="100" value="72"
+                       oninput="document.getElementById('soilMoistureVal').textContent=this.value+'%'" />
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div><label class="form-label" data-i18n="air-temp-label">Air Temp (°C)</label><input id="airTemp" type="number" class="form-input" value="32" /></div>
+                <div><label class="form-label" data-i18n="humidity-label">Humidity (%)</label><input id="humidity" type="number" class="form-input" value="65" /></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div><label class="form-label" data-i18n="soil-temp-label">Soil Temp (°C)</label><input id="soilTemp" type="number" class="form-input" value="24" /></div>
+                <div>
+                  <label class="form-label" data-i18n="soil-type-label">Soil Type</label>
+                  <select id="soilType" class="form-input dropdown-select">
+                    <option>Sandy</option><option selected>Loamy</option><option>Clay</option><option>Silt</option><option>Sandy Loam</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent weather -->
+          <div class="card">
+            <div class="card-title" style="margin-bottom:12px" data-i18n="weather-section">🌧 Recent Weather</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div><label class="form-label" data-i18n="last-rain-label">Last Rain (mm)</label><input id="lastRainMm" type="number" class="form-input" value="8" /></div>
+                <div><label class="form-label" data-i18n="days-since-rain-label">Days Since Rain</label><input id="daysSinceRain" type="number" class="form-input" value="3" /></div>
+              </div>
+              <div>
+                <label class="form-label" data-i18n="upcoming-weather-label">Upcoming Weather (7 days)</label>
+                <select id="upcomingWeather" class="form-input dropdown-select">
+                  <option>Sunny all week</option>
+                  <option selected>Rain in 3–4 days (heavy)</option>
+                  <option>Intermittent light showers</option>
+                  <option>Heatwave forecast</option>
+                  <option>Frost risk overnight</option>
+                  <option>Mixed clouds, no significant rain</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Specific concerns -->
+          <div class="card">
+            <div class="card-title" style="margin-bottom:10px" data-i18n="concerns-section">💬 Specific Concerns</div>
+            <textarea id="specificConcerns" class="form-input" rows="3" style="resize:vertical">Yellow rust risk seems elevated. Want to know if I should apply propiconazole before the Loo winds or wait until after.</textarea>
+          </div>
+
+          <button id="analyzeBtn" class="btn btn-primary" style="width:100%;justify-content:center;font-size:13px" onclick="analyzeWithAI()">
+            <span data-i18n="analyze-btn">🤖 Analyze with AgriMind AI</span>
+          </button>
+          <button style="width:100%;background:none;border:none;font-size:11px;color:var(--text-tertiary);cursor:pointer;padding:4px;font-family:'DM Sans',sans-serif;transition:color 0.15s"
+                  onmouseover="this.style.color='var(--green-primary)'" onmouseout="this.style.color='var(--text-tertiary)'" onclick="loadPreset()">
+            <span data-i18n="load-preset">↺ Load demo preset data</span>
+          </button>
+        </div>
+
+        <!-- Right: AI Response -->
+        <div class="card" style="min-height:600px;display:flex;flex-direction:column">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:28px;height:28px;background:var(--green-muted);border:1px solid rgba(45,210,114,0.2);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px">🌿</div>
+              <span class="card-title" data-i18n="ai-analysis-title">AgriMind Analysis</span>
+            </div>
+            <div id="statusBadge" style="font-size:10px;color:var(--text-tertiary);background:var(--bg-elevated);border:1px solid var(--border);padding:3px 10px;border-radius:99px" data-i18n="awaiting">Awaiting data</div>
+          </div>
+
+          <!-- Placeholder -->
+          <div id="aiPlaceholder" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 0">
+            <div style="font-size:48px;margin-bottom:14px;opacity:0.15">🌾</div>
+            <div style="font-size:13px;color:var(--text-secondary);font-weight:500" data-i18n="ai-placeholder-main">Fill in your farm data and click</div>
+            <div style="font-size:13px;color:var(--green-primary);font-weight:600" data-i18n="ai-placeholder-btn">"Analyze with AgriMind AI"</div>
+            <div style="font-size:11px;color:var(--text-tertiary);margin-top:8px;max-width:260px;line-height:1.65" data-i18n="ai-placeholder-sub">AgriMind will analyze your soil, weather, crop stage, and disease risk to give you a complete autonomous action plan.</div>
+          </div>
+
+          <!-- Thinking indicator -->
+          <div id="thinkingIndicator" class="hidden" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 0">
+            <div style="display:flex;align-items:center;gap:4px;margin-bottom:12px">
+              <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+            </div>
+            <div style="font-size:13px;color:var(--green-primary);font-weight:500" data-i18n="thinking-msg">AgriMind is analyzing your farm data...</div>
+            <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px" data-i18n="thinking-sub">Evaluating soil, weather, disease risk & crop stage</div>
+          </div>
+
+          <!-- AI response -->
+          <div id="aiResponseContainer" class="hidden ai-response-area fade-in" style="flex:1;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div><!-- /view-ai-agent -->
+
+    <!-- ─────────────────────────────────────────────────────────
+         VIEW: ALERTS
+    ──────────────────────────────────────────────────────────── -->
+    <div id="view-alerts" class="view">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <h1 class="page-title" data-i18n="alerts-title">Alert Center</h1>
+          <p class="page-sub" data-i18n="alerts-subtitle">4 active alerts · Last updated 09:42 AM</p>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-sm btn-sm-muted" data-i18n="mark-all-read">Mark all read</button>
+          <button class="btn-sm btn-sm-green" data-i18n="alert-settings">Alert Settings</button>
+        </div>
+      </div>
+
+      <div style="max-width:700px;display:flex;flex-direction:column;gap:10px">
+
+        <!-- Alert 1: Critical -->
+        <div class="alert-card critical">
+          <div style="display:flex;align-items:flex-start;gap:12px">
+            <span style="font-size:20px;margin-top:1px">🚨</span>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <span class="alert-badge badge-critical" data-i18n="badge-critical">Critical</span>
+                <span style="font-size:10px;color:var(--text-tertiary)" data-i18n="a1-meta">Weather · 2 hours ago</span>
+              </div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:5px" data-i18n="a1-title">Loo winds forecast Saturday — hold urea application</div>
+              <div style="font-size:12px;color:var(--text-secondary);line-height:1.6" data-i18n="a1-body">80% probability of 40–50°C Loo winds Saturday. Applying urea before Loo causes scorching and volatile losses, wasting ₨4,200 in inputs. Hold until Monday 6 May.</div>
+              <div style="display:flex;gap:8px;margin-top:10px">
+                <button class="btn-sm btn-sm-green" data-i18n="acknowledge">✓ Acknowledge</button>
+                <button class="btn-sm btn-sm-muted" data-i18n="snooze">Snooze 24h</button>
+                <button class="btn-ghost" data-i18n="tell-more">Tell me more →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alert 2: High — Disease -->
+        <div class="alert-card high">
+          <div style="display:flex;align-items:flex-start;gap:12px">
+            <span style="font-size:20px;margin-top:1px">⚠️</span>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <span class="alert-badge badge-high" data-i18n="badge-high">High</span>
+                <span style="font-size:10px;color:var(--text-tertiary)" data-i18n="a2-meta">Disease Risk · 4 hours ago</span>
+              </div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:5px" data-i18n="a2-title">Yellow rust risk window opens Friday evening</div>
+              <div style="font-size:12px;color:var(--text-secondary);line-height:1.6" data-i18n="a2-body">Humidity will exceed 80% for 10+ hours after cool overnight dew at 15–18°C — ideal yellow rust conditions. Apply propiconazole 25EC preventively by Friday 5 PM. Cost: ₨850.</div>
+              <div style="display:flex;gap:8px;margin-top:10px">
+                <button class="btn-sm btn-sm-orange" data-i18n="schedule-treatment">✓ Schedule Treatment</button>
+                <button class="btn-sm btn-sm-muted" data-i18n="decline">Decline</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alert 3: High — Irrigation -->
+        <div class="alert-card high">
+          <div style="display:flex;align-items:flex-start;gap:12px">
+            <span style="font-size:20px;margin-top:1px">💧</span>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <span class="alert-badge badge-high" data-i18n="badge-high">High</span>
+                <span style="font-size:10px;color:var(--text-tertiary)" data-i18n="a3-meta">Irrigation · 30 mins ago</span>
+              </div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:5px" data-i18n="a3-title">Zone 4 soil moisture critical — 48% (threshold: 55%)</div>
+              <div style="font-size:12px;color:var(--text-secondary);line-height:1.6" data-i18n="a3-body">Zone 4 has dropped below the stress threshold. Auto-irrigation scheduled for 3:30 PM today — drip valves open for 22 minutes delivering 340L.</div>
+              <div style="display:flex;gap:8px;margin-top:10px">
+                <button class="btn-sm btn-sm-green" onclick="approveIrrigation(this)" data-i18n="approve-irrigate">✓ Approve (Auto-irrigate)</button>
+                <button class="btn-sm btn-sm-muted" data-i18n="adjust-timing">Adjust timing</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alert 4: Medium — Operational -->
+        <div class="alert-card medium">
+          <div style="display:flex;align-items:flex-start;gap:12px">
+            <span style="font-size:20px;margin-top:1px">🔧</span>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <span class="alert-badge badge-medium" data-i18n="badge-medium">Medium</span>
+                <span style="font-size:10px;color:var(--text-tertiary)" data-i18n="a4-meta">Operational · 1 hour ago</span>
+              </div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:5px" data-i18n="a4-title">Zone 3 drip emitter pressure anomaly detected</div>
+              <div style="font-size:12px;color:var(--text-secondary);line-height:1.6" data-i18n="a4-body">Flow sensor reading 12% below expected for Zone 3. Likely partial clog in rows 12–15. Visual inspection recommended before next irrigation.</div>
+              <div style="display:flex;gap:8px;margin-top:10px">
+                <button class="btn-sm btn-sm-yellow" data-i18n="mark-inspect">Mark for inspection</button>
+                <button class="btn-ghost" data-i18n="dismiss">Dismiss →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alert 5: Info — Market -->
+        <div class="alert-card info">
+          <div style="display:flex;align-items:flex-start;gap:12px">
+            <span style="font-size:20px;margin-top:1px">📈</span>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <span class="alert-badge badge-info" data-i18n="badge-info">Info</span>
+                <span style="font-size:10px;color:var(--text-tertiary)" data-i18n="a5-meta">Market · 15 mins ago</span>
+              </div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:5px" data-i18n="a5-title">Wheat mandi price: ₨3,800/40kg at Lahore (up ₨120 from yesterday)</div>
+              <div style="font-size:12px;color:var(--text-secondary);line-height:1.6" data-i18n="a5-body">Price crossed your ₨3,700 alert threshold. Harvest window is Days 90–100. Holding 2 more weeks could yield better returns if Loo winds subside and grain quality holds.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /view-alerts -->
+
+    <!-- ─────────────────────────────────────────────────────────
+         VIEW: WEATHER
+    ──────────────────────────────────────────────────────────── -->
+    <div id="view-weather" class="view">
+      <div class="page-header">
+        <h1 class="page-title" data-i18n="weather-view-title">Hyperlocal Weather</h1>
+        <p class="page-sub" data-i18n="weather-view-subtitle">Al-Barkat Farm · Open-Meteo + ECMWF blend · Updated 09:40 AM</p>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px" data-i18n="48hr-title">48-Hour Hourly Forecast</div>
+          <canvas id="hourlyChart" height="100"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px" data-i18n="conditions-now">Conditions Now</div>
+          <div style="text-align:center;margin-bottom:16px">
+            <div style="font-size:52px;line-height:1;margin-bottom:6px">☀️</div>
+            <div style="font-size:36px;font-weight:700;letter-spacing:-0.04em;color:var(--text-primary)">36°C</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:3px" data-i18n="sunny-clear">Sunny, Clear</div>
+          </div>
+          <div>
+            <div class="info-row"><span class="info-key" data-i18n="w-humidity">Humidity</span><span class="info-val mono" style="font-size:12px">58%</span></div>
+            <div class="info-row"><span class="info-key" data-i18n="w-wind">Wind</span><span class="info-val" style="font-size:12px">14 km/h SW</span></div>
+            <div class="info-row"><span class="info-key" data-i18n="w-pressure">Pressure</span><span class="info-val mono" style="font-size:12px">1005 hPa</span></div>
+            <div class="info-row"><span class="info-key" data-i18n="w-uv">UV Index</span><span style="font-size:12px;font-weight:500;color:var(--accent-orange)" data-i18n="w-uv-val">10 — Very High</span></div>
+            <div class="info-row"><span class="info-key" data-i18n="w-dew">Dew Point</span><span class="info-val mono" style="font-size:12px">18°C</span></div>
+            <div class="info-row"><span class="info-key" data-i18n="w-vis">Visibility</span><span class="info-val" style="font-size:12px">18 km</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px" data-i18n="7day-title">7-Day Forecast with Agri-Impact</div>
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th data-i18n="th-day">Day</th>
+                <th style="text-align:center" data-i18n="th-cond">Condition</th>
+                <th style="text-align:center" data-i18n="th-temp">High/Low</th>
+                <th style="text-align:center" data-i18n="th-rain">Rain %</th>
+                <th style="text-align:center" data-i18n="th-hum">Humidity</th>
+                <th data-i18n="th-advisory">AgriMind Advisory</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="font-weight:600;color:var(--text-primary)" data-i18n="today-wed">Today Mon</td><td style="text-align:center">☀️ <span data-i18n="sunny">Sunny</span></td><td style="text-align:center" class="mono">36° / 24°</td><td style="text-align:center;color:var(--green-primary)" class="mono">0%</td><td style="text-align:center" class="mono">58%</td><td style="color:var(--green-primary)" data-i18n="adv-1">Good day to irrigate Zones 2 & 4</td></tr>
+              <tr><td style="font-weight:500;color:var(--text-primary)" data-i18n="thu-1may">Tue 5 May</td><td style="text-align:center">⛅ <span data-i18n="partly-cloudy">Partly Cloudy</span></td><td style="text-align:center" class="mono">34° / 22°</td><td style="text-align:center;color:var(--green-primary)" class="mono">5%</td><td style="text-align:center" class="mono">62%</td><td style="color:var(--accent-blue)" data-i18n="adv-2">Good window for fungicide application</td></tr>
+              <tr><td style="font-weight:500;color:var(--text-primary)" data-i18n="fri-2may">Wed 6 May</td><td style="text-align:center">🌥 <span data-i18n="cloudy">Hazy</span></td><td style="text-align:center" class="mono">37° / 25°</td><td style="text-align:center;color:var(--accent-yellow)" class="mono">10%</td><td style="text-align:center" class="mono">55%</td><td style="color:var(--accent-yellow)" data-i18n="adv-3">Apply propiconazole spray before 5 PM</td></tr>
+              <tr class="warn-row"><td style="font-weight:600;color:var(--accent-red)" data-i18n="sat-3may">Thu 7 May ⚠</td><td style="text-align:center">🌬 <span data-i18n="heavy-rain">Loo Winds</span></td><td style="text-align:center" class="mono">42° / 28°</td><td style="text-align:center;color:var(--accent-red);font-weight:700" class="mono">0%</td><td style="text-align:center;color:var(--accent-red)" class="mono">35%</td><td style="color:var(--accent-red)" data-i18n="adv-4">No field operations. Yellow rust risk HIGH.</td></tr>
+              <tr><td style="font-weight:500;color:var(--text-primary)" data-i18n="sun-4may">Fri 8 May</td><td style="text-align:center">🌤 <span data-i18n="showers">Clearing</span></td><td style="text-align:center" class="mono">39° / 26°</td><td style="text-align:center;color:var(--accent-orange)" class="mono">5%</td><td style="text-align:center;color:var(--accent-orange)" class="mono">42%</td><td style="color:var(--accent-orange)" data-i18n="adv-5">Monitor for rust symptoms</td></tr>
+              <tr><td style="font-weight:500;color:var(--text-primary)" data-i18n="mon-5may">Sat 9 May</td><td style="text-align:center">⛅ <span data-i18n="clearing">Partly Cloudy</span></td><td style="text-align:center" class="mono">34° / 22°</td><td style="text-align:center;color:var(--green-primary)" class="mono">10%</td><td style="text-align:center" class="mono">60%</td><td style="color:var(--accent-blue)" data-i18n="adv-6">Resume fertilizer application today</td></tr>
+              <tr><td style="font-weight:500;color:var(--text-primary)" data-i18n="tue-6may">Sun 10 May</td><td style="text-align:center">☀️ <span data-i18n="sunny">Sunny</span></td><td style="text-align:center" class="mono">33° / 21°</td><td style="text-align:center;color:var(--green-primary)" class="mono">0%</td><td style="text-align:center" class="mono">55%</td><td style="color:var(--green-primary)" data-i18n="adv-7">Optimal conditions resume</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /view-weather -->
+
+    <!-- ─────────────────────────────────────────────────────────
+         VIEW: FIELDS
+    ──────────────────────────────────────────────────────────── -->
+    <div id="view-fields" class="view">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <h1 class="page-title" data-i18n="fields-title">Field Overview</h1>
+          <p class="page-sub" data-i18n="fields-subtitle">Al-Barkat Farm · 45 acres · 4 irrigation zones</p>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span style="font-size:10px;color:var(--text-tertiary);margin-right:2px">Layer:</span>
+          <button class="field-layer-btn active" data-layer="moisture" onclick="setFieldLayer('moisture',this)">Moisture</button>
+          <button class="field-layer-btn" data-layer="temp"      onclick="setFieldLayer('temp',this)">Temperature</button>
+          <button class="field-layer-btn" data-layer="ndvi"      onclick="setFieldLayer('ndvi',this)">NDVI</button>
+          <button class="field-layer-btn" data-layer="elevation" onclick="setFieldLayer('elevation',this)">Elevation</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 300px;gap:12px;margin-bottom:12px">
+
+        <!-- 3D Terrain Canvas -->
+        <div class="card" style="padding:0;overflow:hidden;position:relative">
+          <div style="position:absolute;top:12px;left:14px;z-index:10;display:flex;flex-direction:column;gap:4px">
+            <div style="font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:-0.01em">Al-Barkat Farm</div>
+            <div id="field-layer-label" style="font-size:10px;color:var(--green-primary);font-weight:600">Soil Moisture Heatmap</div>
+          </div>
+          <div style="position:absolute;top:12px;right:14px;z-index:10">
+            <div id="field-compass" style="width:28px;height:28px;background:rgba(0,0,0,0.5);border:1px solid var(--border-strong);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-secondary)">N↑</div>
+          </div>
+          <!-- Hover tooltip -->
+          <div id="fieldTooltip" style="position:absolute;z-index:20;pointer-events:none;display:none;background:rgba(8,12,10,0.92);border:1px solid var(--border-strong);border-radius:6px;padding:8px 12px;font-size:11px;backdrop-filter:blur(8px)"></div>
+          <canvas id="fieldCanvas3D" style="width:100%;display:block;cursor:grab"></canvas>
+        </div>
+
+        <!-- Zone side panel -->
+        <div style="display:flex;flex-direction:column;gap:10px">
+
+          <!-- Zone status list -->
+          <div class="card" style="padding:0;overflow:hidden">
+            <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:-0.01em">Zone Status</span>
+              <span style="font-size:10px;color:var(--text-tertiary)">Live · 09:42 AM</span>
+            </div>
+            <!-- Zone 1 -->
+            <div class="zone-stat-row" style="padding:10px 14px;cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="highlightZone(1)">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--accent-blue);flex-shrink:0;margin-right:10px"></div>
+              <div style="flex:1">
+                <div style="display:flex;justify-content:space-between;align-items:baseline">
+                  <span style="font-size:12px;font-weight:600;color:var(--text-primary)">Zone 1</span>
+                  <span style="font-size:13px;font-weight:700;color:var(--accent-blue)" class="mono">78%</span>
+                </div>
+                <div style="font-size:10px;color:var(--text-tertiary);margin-top:1px">North Block · 12 acres</div>
+                <div style="height:3px;background:var(--bg-base);border-radius:99px;margin-top:5px"><div style="width:78%;height:100%;background:var(--accent-blue);border-radius:99px"></div></div>
+              </div>
+              <canvas class="zone-sparkline" id="spark1" width="50" height="24" style="margin-left:8px;flex-shrink:0"></canvas>
+            </div>
+            <!-- Zone 2 -->
+            <div class="zone-stat-row" style="padding:10px 14px;cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="highlightZone(2)">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--accent-yellow);flex-shrink:0;margin-right:10px"></div>
+              <div style="flex:1">
+                <div style="display:flex;justify-content:space-between;align-items:baseline">
+                  <span style="font-size:12px;font-weight:600;color:var(--text-primary)">Zone 2</span>
+                  <span style="font-size:13px;font-weight:700;color:var(--accent-yellow)" class="mono">61%</span>
+                </div>
+                <div style="font-size:10px;color:var(--text-tertiary);margin-top:1px">East Block · 10 acres</div>
+                <div style="height:3px;background:var(--bg-base);border-radius:99px;margin-top:5px"><div style="width:61%;height:100%;background:var(--accent-yellow);border-radius:99px"></div></div>
+              </div>
+              <canvas class="zone-sparkline" id="spark2" width="50" height="24" style="margin-left:8px;flex-shrink:0"></canvas>
+            </div>
+            <!-- Zone 3 -->
+            <div class="zone-stat-row" style="padding:10px 14px;cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="highlightZone(3)">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--green-primary);flex-shrink:0;margin-right:10px"></div>
+              <div style="flex:1">
+                <div style="display:flex;justify-content:space-between;align-items:baseline">
+                  <span style="font-size:12px;font-weight:600;color:var(--text-primary)">Zone 3</span>
+                  <span style="font-size:13px;font-weight:700;color:var(--green-primary)" class="mono">82%</span>
+                </div>
+                <div style="font-size:10px;color:var(--text-tertiary);margin-top:1px">South Block · 13 acres</div>
+                <div style="height:3px;background:var(--bg-base);border-radius:99px;margin-top:5px"><div style="width:82%;height:100%;background:var(--green-primary);border-radius:99px"></div></div>
+              </div>
+              <canvas class="zone-sparkline" id="spark3" width="50" height="24" style="margin-left:8px;flex-shrink:0"></canvas>
+            </div>
+            <!-- Zone 4 (Critical) -->
+            <div class="zone-stat-row" style="padding:10px 14px;cursor:pointer;transition:background 0.15s;background:rgba(240,107,107,0.03)" onmouseover="this.style.background='rgba(240,107,107,0.07)'" onmouseout="this.style.background='rgba(240,107,107,0.03)'" onclick="highlightZone(4)">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--accent-red);flex-shrink:0;margin-right:10px"></div>
+              <div style="flex:1">
+                <div style="display:flex;justify-content:space-between;align-items:baseline">
+                  <span style="font-size:12px;font-weight:600;color:var(--text-primary)">Zone 4</span>
+                  <span style="font-size:13px;font-weight:700;color:var(--accent-red)" class="mono">48%</span>
+                </div>
+                <div style="font-size:10px;color:var(--accent-red);margin-top:1px">West Block · 10 acres · ⚠ Critical</div>
+                <div style="height:3px;background:var(--bg-base);border-radius:99px;margin-top:5px"><div style="width:48%;height:100%;background:var(--accent-red);border-radius:99px"></div></div>
+              </div>
+              <canvas class="zone-sparkline" id="spark4" width="50" height="24" style="margin-left:8px;flex-shrink:0"></canvas>
+            </div>
+          </div>
+
+          <!-- Legend -->
+          <div class="card" style="padding:12px 14px">
+            <div style="font-size:10px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px" id="legendTitle">Moisture Scale</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <div id="legendGradient" style="flex:1;height:8px;border-radius:4px;background:linear-gradient(90deg,#f06b6b,#f5c542,#2dd272)"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-tertiary)" id="legendLabels">
+              <span>0%</span><span>50%</span><span>100%</span>
+            </div>
+          </div>
+
+          <!-- Season progress -->
+          <div class="card" style="padding:12px 14px">
+            <div style="font-size:11px;font-weight:700;color:var(--text-primary);margin-bottom:10px" data-i18n="season-progress">Season Progress — Wheat</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+              <span style="font-size:10px;color:var(--text-tertiary);width:44px;flex-shrink:0" data-i18n="sowing">Sowing</span>
+              <div style="flex:1;background:var(--bg-base);border-radius:99px;height:5px;position:relative;border:1px solid var(--border)">
+                <div style="width:54%;height:100%;background:linear-gradient(90deg,var(--green-dim),var(--green-primary));border-radius:99px"></div>
+                <div style="position:absolute;top:50%;transform:translate(-50%,-50%);left:54%;width:11px;height:11px;border-radius:50%;background:var(--bg-surface);border:2px solid var(--green-primary);box-shadow:0 0 8px rgba(45,210,114,0.5)"></div>
+              </div>
+              <span style="font-size:10px;color:var(--text-tertiary);width:44px;flex-shrink:0;text-align:right" data-i18n="harvest">Harvest</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-tertiary)">
+              <span data-i18n="day-zero">Day 0</span>
+              <span style="color:var(--green-primary);font-weight:700" data-i18n="day-now">Day 65 (now)</span>
+              <span data-i18n="day-120">Day 120</span>
+            </div>
+          </div>
+
+          <!-- Field metrics -->
+          <div class="card" style="padding:12px 14px">
+            <div style="font-size:10px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">Field Metrics</div>
+            <div class="info-row" style="padding:6px 0"><span class="info-key">Total Area</span><span class="info-val mono" style="font-size:11px">45.0 acres</span></div>
+            <div class="info-row" style="padding:6px 0"><span class="info-key">Avg Moisture</span><span class="info-val mono" style="font-size:11px;color:var(--green-primary)">67.3%</span></div>
+            <div class="info-row" style="padding:6px 0"><span class="info-key">Active Drip Lines</span><span class="info-val mono" style="font-size:11px">90 rows</span></div>
+            <div class="info-row" style="padding:6px 0"><span class="info-key">Sensor Coverage</span><span class="info-val mono" style="font-size:11px">98.4%</span></div>
+            <div class="info-row" style="padding:6px 0;border:none"><span class="info-key">Next Scan</span><span class="info-val" style="font-size:11px;color:var(--accent-blue)">In 18 min</span></div>
+          </div>
+
+        </div><!-- /zone side panel -->
+      </div>
+    </div><!-- /view-fields -->
+
+  </main>
+</div>
+
+<!-- App modules (ES modules) -->
+<script type="module" src="src/js/i18n.js"></script>
+<script type="module" src="src/js/ai-agent.js"></script>
+<script type="module" src="src/js/app.js"></script>
+
+</body>
+</html>

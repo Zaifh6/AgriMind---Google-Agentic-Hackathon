@@ -1,0 +1,25 @@
+# ─── OS files ────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Editor / IDE ────────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ─── Secrets — NEVER commit API keys ────────────────────────
+.env
+.env.local
+.env.*.local
+secrets.js
+
+# ─── Node (if a build step is added later) ───────────────────
+node_modules/
+npm-debug.log*
+yarn-error.log
+
+# ─── Build outputs ────────────────────────────────────────────
+dist/
+build/
