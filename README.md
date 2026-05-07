@@ -1,8 +1,8 @@
-# 🌿 AgriMind — Autonomous AI Farming Agent
+# 🌿 AgriMind — Multi-Agent AI Farming System
 
 > **Google Agentic Hackathon 2026** · Built for smallholder farmers across South Asia
 
-AgriMind is an autonomous AI-powered farming agent that ingests real-time sensor data, weather forecasts, and crop telemetry to deliver proactive, actionable decisions — in **English** and **Urdu (اردو)**.
+AgriMind is a **multi-agent AI farming system** that orchestrates a swarm of specialised agents — each grounded in real-time satellite, weather, and IoT data — to deliver proactive, autonomous farm decisions in **English** and **Urdu (اردو)**.
 
 ![AgriMind Dashboard](https://placehold.co/1200x600/0d1410/2dd272?text=AgriMind+Dashboard)
 
@@ -13,7 +13,8 @@ AgriMind is an autonomous AI-powered farming agent that ingests real-time sensor
 | Feature | Description |
 |---|---|
 | **Farm Dashboard** | Live KPIs — water savings, yield forecast, disease risk, active alerts |
-| **AI Agent (Gemini 2.5 Pro)** | Submit sensor readings and get a structured, 7-section autonomous action plan |
+| **Multi-Agent Swarm (ADK)** | Four specialised agents collaborate: Agri-Forecaster → Agronomy (RAG) → IoT Execution → Orchestrator |
+| **Grounding & RAG** | Agronomy Agent queries Vertex AI Search over the proprietary crop-disease knowledge base; field boundaries via Google Maps API |
 | **Alert Center** | Priority-ranked alerts with one-tap approve / snooze / dismiss |
 | **Hyperlocal Weather** | 48-hour hourly chart + 7-day table with per-day AgriMind advisories |
 | **3D Field Map** | Interactive isometric heatmap with Moisture / Temperature / NDVI / Elevation layers |
@@ -91,14 +92,107 @@ Then open **http://localhost:8080** in your browser.
 
 ---
 
-## 🧠 AI Agent — How it Works
+## 🤖 Multi-Agent Architecture (ADK)
+
+AgriMind's reasoning layer is a **four-agent swarm** orchestrated via the [Agent Development Kit (ADK)](https://google.github.io/adk-docs/). The Orchestrator delegates tasks to specialised sub-agents and synthesises their outputs into a unified daily farm plan.
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                    AgriMind Agent Swarm (ADK)                    │
+│                                                                  │
+│  ┌─────────────────┐    ┌─────────────────┐                     │
+│  │ Agri-Forecaster │    │    Agronomy      │                     │
+│  │     Agent       │    │     Agent        │                     │
+│  │                 │    │                  │                     │
+│  │ • ECMWF weather │    │ • Vertex AI RAG  │                     │
+│  │ • Sentinel-2    │    │ • Crop-disease   │                     │
+│  │   NDVI satellite│    │   knowledge base │                     │
+│  │ • Google Maps   │    │ • Treatment      │                     │
+│  │   field boundary│    │   protocols      │                     │
+│  └────────┬────────┘    └────────┬─────────┘                    │
+│           │                      │                               │
+│           └──────────┬───────────┘                               │
+│                      ▼                                           │
+│           ┌─────────────────────┐    ┌──────────────────────┐   │
+│           │  IoT Execution       │    │   Orchestrator Agent │   │
+│           │  Agent               │───▶│   (ADK Router)       │   │
+│           │                     │    │                      │   │
+│           │ • MQTT valve cmds   │    │ • Synthesises all    │   │
+│           │ • Drone GPS waypts  │    │   sub-agent outputs  │   │
+│           │ • Schedule triggers │    │ • Gemini 2.5 Pro LLM │   │
+│           └─────────────────────┘    │ • Final daily plan   │   │
+│                                      └──────────────────────┘   │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### Agent responsibilities
+
+| Agent | Responsibility | Data sources |
+|---|---|---|
+| **Agri-Forecaster** | Weather & satellite ingestion | Open-Meteo ECMWF blend, Sentinel-2 NDVI, Google Maps API (field boundaries) |
+| **Agronomy** | Crop health analysis via RAG | Vertex AI Search over proprietary crop-disease knowledge base |
+| **IoT Execution** | Hardware command generation | MQTT broker (drip valves), drone mission planner (GPS waypoints) |
+| **Orchestrator** | Task routing & plan synthesis | All sub-agent outputs → Gemini 2.5 Pro |
+
+### Orchestrator system prompt (excerpt)
+
+```
+You are the AgriMind Orchestrator Agent, the central router in a
+multi-agent farming swarm deployed on Google Cloud Run via the ADK.
+
+You have received delegated analysis from three specialised sub-agents:
+• Agri-Forecaster Agent — ECMWF weather + Sentinel-2 NDVI; field
+  boundaries via Google Maps API.
+• Agronomy Agent — RAG over crop-disease knowledge base via Vertex AI
+  Search; disease thresholds and treatment protocols.
+• IoT Execution Agent — MQTT valve schedules and drone spray missions.
+
+Synthesise into a unified daily plan…
+```
+
+---
+
+## 🔍 Grounding & RAG
+
+### Vertex AI Search — Agronomy RAG
+
+The **Agronomy Agent** performs Retrieval-Augmented Generation (RAG) over AgriMind's private crop-disease knowledge base using **Vertex AI Search**. At query time, the agent retrieves the top-K most relevant documents (disease pressure curves, fungicide efficacy tables, regional spray calendars) and injects them as grounding context into the Orchestrator's prompt.
+
+```
+Farmer query + sensor data
+        │
+        ▼
+Vertex AI Search ──── crop-disease corpus ────▶ top-K chunks
+        │
+        ▼
+Agronomy Agent builds grounded context block
+        │
+        ▼
+Orchestrator prompt (grounded) ──▶ Gemini 2.5 Pro
+```
+
+### Google Maps API — Spatial Grounding
+
+The **Agri-Forecaster Agent** uses the **Google Maps API** to:
+- Resolve field boundaries from GPS coordinates into precise polygon geometries
+- Clip NDVI satellite tiles to the exact field extent
+- Derive elevation profiles for drainage and runoff modelling
+
+This spatial grounding ensures weather and soil recommendations are specific to the farm's actual geography, not a generic grid cell.
+
+---
+
+## 🧠 Multi-Agent Analysis Flow
 
 1. The farmer fills in crop details, sensor readings, and weather data in the **AI Agent** view.
-2. AgriMind constructs a structured prompt and sends it to **Gemini 2.5 Pro** via the Generative Language API.
-3. The response is parsed from Markdown and rendered in the **AgriMind Analysis** panel.
-4. If Urdu mode is active, the model is instructed to respond fully in **Nastaliq Urdu**.
+2. The **Orchestrator** fires the Gemini 2.5 Pro call and simultaneously triggers the sub-agent delegation pipeline.
+3. **Agri-Forecaster** ingests ECMWF weather + Sentinel-2 NDVI; Google Maps API resolves field boundaries.
+4. **Agronomy Agent** queries Vertex AI Search for RAG-grounded disease and nutrient guidance.
+5. **IoT Execution Agent** translates agronomic outputs to MQTT valve commands and drone waypoints.
+6. The **Orchestrator** synthesises all sub-agent outputs into the final 7-section plan.
+7. If Urdu mode is active, the model responds fully in **Nastaliq Urdu**.
 
-### System prompt sections generated
+### Output sections
 
 ```
 ## 🌡 Current Farm Assessment
@@ -120,8 +214,54 @@ Then open **http://localhost:8080** in your browser.
 | Styling | Custom CSS design system + Tailwind CDN (utility assist) |
 | Charts | [Chart.js 4.4](https://www.chartjs.org/) |
 | 3D Field Map | HTML5 Canvas 2D (isometric projection, custom renderer) |
-| AI Backend | [Google Gemini 2.5 Pro](https://ai.google.dev/) |
+| Agent Orchestration | [Agent Development Kit (ADK)](https://google.github.io/adk-docs/) |
+| LLM (Orchestrator) | [Google Gemini 2.5 Pro](https://ai.google.dev/) |
+| RAG / Grounding | [Vertex AI Search](https://cloud.google.com/vertex-ai/docs/generative-ai/retrieval-augmented-generation/rag-overview) |
+| Spatial Grounding | [Google Maps API](https://developers.google.com/maps) — field boundary & elevation |
+| Weather Data | Open-Meteo ECMWF blend |
+| Satellite Imagery | Sentinel-2 NDVI (via Google Earth Engine) |
+| IoT Layer | MQTT (drip valves), drone mission planner |
 | Fonts | DM Sans, DM Mono, Noto Nastaliq Urdu (Google Fonts) |
+
+---
+
+## ☁ Infrastructure & Deployment
+
+AgriMind is deployed entirely on **Google Cloud Platform (GCP)** — there is no AWS dependency.
+
+```
+┌─────────────────────────────────────────────────┐
+│              Google Cloud Platform              │
+│                                                 │
+│  ┌──────────────────────────────────────────┐  │
+│  │           Agent Engine                   │  │
+│  │  Manages agent lifecycle, routing, and   │  │
+│  │  observability for the ADK swarm         │  │
+│  └────────────────┬─────────────────────────┘  │
+│                   │                             │
+│        ┌──────────┴──────────┐                 │
+│        ▼                     ▼                 │
+│  ┌───────────┐         ┌───────────┐           │
+│  │ Cloud Run │         │    GKE    │           │
+│  │ (stateless│         │ (stateful │           │
+│  │  agents)  │         │  services)│           │
+│  └───────────┘         └───────────┘           │
+│                                                 │
+│  ┌──────────────┐   ┌───────────────────────┐  │
+│  │ Vertex AI    │   │  Cloud Pub/Sub (MQTT   │  │
+│  │ Search (RAG) │   │  bridge for IoT layer) │  │
+│  └──────────────┘   └───────────────────────┘  │
+└─────────────────────────────────────────────────┘
+```
+
+| Service | Role |
+|---|---|
+| **Agent Engine** | Manages the ADK agent swarm — lifecycle, routing, health, and tracing |
+| **Cloud Run** | Hosts stateless sub-agents (Agri-Forecaster, Agronomy, IoT Execution) — auto-scales to zero |
+| **GKE** | Hosts stateful services (Vertex AI Search index serving, MQTT broker) |
+| **Vertex AI Search** | Serves the crop-disease RAG index for the Agronomy Agent |
+| **Cloud Pub/Sub** | MQTT bridge — IoT Execution Agent publishes valve commands to field devices |
+| **Gemini 2.5 Pro** | LLM powering the Orchestrator's final synthesis step |
 
 ---
 

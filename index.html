@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AgriMind — Autonomous AI Farming Agent</title>
+  <title>AgriMind — Multi-Agent AI Farming System</title>
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Mono:wght@400;500&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet" />
@@ -345,11 +345,12 @@
     <div id="view-ai-agent" class="view">
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
         <div>
-          <h1 class="page-title" data-i18n="ai-title">AI Agent — Farm Analyzer</h1>
-          <p class="page-sub" data-i18n="ai-subtitle">Send real-time farm data to AgriMind's AI brain and get autonomous recommendations</p>
+          <h1 class="page-title" data-i18n="ai-title">Multi-Agent Farm Analyzer</h1>
+          <p class="page-sub" data-i18n="ai-subtitle">Agri-Forecaster · Agronomy (RAG) · IoT Execution · Orchestrator (ADK)</p>
         </div>
-        <div style="font-size:11px;color:var(--text-tertiary);background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 12px">
-          <span data-i18n="powered-by">Powered by</span> <span style="color:var(--green-primary);font-weight:600">Google Gemini 2.5 Pro</span>
+        <div style="font-size:11px;color:var(--text-tertiary);background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 12px;text-align:right;line-height:1.8">
+          <span data-i18n="powered-by">Powered by</span> <span style="color:var(--green-primary);font-weight:600">ADK · Vertex AI · Gemini 2.5 Pro</span><br>
+          <span style="font-size:9px;opacity:0.6">Cloud Run · GKE · Agent Engine</span>
         </div>
       </div>
 
@@ -478,13 +479,47 @@
             <div style="font-size:11px;color:var(--text-tertiary);margin-top:8px;max-width:260px;line-height:1.65" data-i18n="ai-placeholder-sub">AgriMind will analyze your soil, weather, crop stage, and disease risk to give you a complete autonomous action plan.</div>
           </div>
 
-          <!-- Thinking indicator -->
-          <div id="thinkingIndicator" class="hidden" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 0">
-            <div style="display:flex;align-items:center;gap:4px;margin-bottom:12px">
-              <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+          <!-- Multi-agent pipeline indicator -->
+          <div id="thinkingIndicator" class="hidden" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 12px">
+            <div style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:20px;font-weight:600">Multi-Agent Swarm · Processing</div>
+            <div style="display:flex;align-items:center;gap:5px;justify-content:center;flex-wrap:wrap">
+
+              <div id="agent-forecaster" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);min-width:82px;transition:all 0.35s">
+                <div style="font-size:17px">🌤</div>
+                <div style="font-size:9px;font-weight:700;color:var(--text-primary);text-align:center">Agri-Forecaster</div>
+                <div style="font-size:8px;color:var(--text-tertiary);text-align:center">Weather · Satellite</div>
+                <div class="agent-status-dot" style="font-size:8px;color:var(--text-tertiary);margin-top:1px">● Pending</div>
+              </div>
+
+              <div style="color:var(--border-strong);font-size:12px;flex-shrink:0">→</div>
+
+              <div id="agent-agronomy" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);min-width:82px;transition:all 0.35s">
+                <div style="font-size:17px">🔬</div>
+                <div style="font-size:9px;font-weight:700;color:var(--text-primary);text-align:center">Agronomy</div>
+                <div style="font-size:8px;color:var(--text-tertiary);text-align:center">RAG · Vertex AI</div>
+                <div class="agent-status-dot" style="font-size:8px;color:var(--text-tertiary);margin-top:1px">● Pending</div>
+              </div>
+
+              <div style="color:var(--border-strong);font-size:12px;flex-shrink:0">→</div>
+
+              <div id="agent-iot" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);min-width:82px;transition:all 0.35s">
+                <div style="font-size:17px">📡</div>
+                <div style="font-size:9px;font-weight:700;color:var(--text-primary);text-align:center">IoT Execution</div>
+                <div style="font-size:8px;color:var(--text-tertiary);text-align:center">MQTT · Drone Ops</div>
+                <div class="agent-status-dot" style="font-size:8px;color:var(--text-tertiary);margin-top:1px">● Pending</div>
+              </div>
+
+              <div style="color:var(--border-strong);font-size:12px;flex-shrink:0">→</div>
+
+              <div id="agent-orchestrator" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);min-width:82px;transition:all 0.35s">
+                <div style="font-size:17px">🤖</div>
+                <div style="font-size:9px;font-weight:700;color:var(--text-primary);text-align:center">Orchestrator</div>
+                <div style="font-size:8px;color:var(--text-tertiary);text-align:center">ADK · Final Plan</div>
+                <div class="agent-status-dot" style="font-size:8px;color:var(--text-tertiary);margin-top:1px">● Pending</div>
+              </div>
+
             </div>
-            <div style="font-size:13px;color:var(--green-primary);font-weight:500" data-i18n="thinking-msg">AgriMind is analyzing your farm data...</div>
-            <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px" data-i18n="thinking-sub">Evaluating soil, weather, disease risk & crop stage</div>
+            <div id="agentStatusMsg" style="font-size:11px;color:var(--green-primary);font-weight:500;margin-top:16px;text-align:center;max-width:360px">Initializing agent swarm...</div>
           </div>
 
           <!-- AI response -->
