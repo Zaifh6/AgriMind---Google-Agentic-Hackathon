@@ -17,7 +17,7 @@
 import { currentLang, T } from './i18n.js';
 
 // ─── Config ──────────────────────────────────────────────────
-const GEMINI_API_KEY  = 'AIzaSyBzNSGcRx6_L8XFgI6UKeNSBAIZMGpIkUI';
+const GEMINI_API_KEY  = '';
 const GEMINI_MODEL    = 'gemini-2.5-pro';
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
